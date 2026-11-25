@@ -2,7 +2,7 @@
 
 > 上游项目：<https://github.com/sherlock-project/sherlock>（MIT License）
 > 本机部署版本：**v0.16.2**（master 源码，2026-11-25 获取）
-> 部署位置：`D:\Workspaces\SherlockOSINT\sherlock`
+> 部署位置：`%USERPROFILE%\SherlockOSINT\sherlock`
 > 最近更新：2026-11-25 第五批 —— 自带独立 Python 运行时（`runtime\python`），虚拟环境不再依赖 DSH / C 盘；`doctor` 13 项全绿
 
 ---
@@ -11,13 +11,13 @@
 
 | 项目 | 内容 |
 | --- | --- |
-| 安装位置 | `D:\Workspaces\SherlockOSINT\sherlock`（系统盘只留一个快捷方式） |
+| 安装位置 | `%USERPROFILE%\SherlockOSINT\sherlock`（系统盘只留一个快捷方式） |
 | 运行模式 | **国内（默认）** / 全部（Sherlock 481 站点），设置菜单第 0 项切换 |
 | Cookie 模式 | **默认关闭**；开启后微博 / 知乎 / 贴吧 用本机登录态判定，配置见 3.5 |
 | 国内模式 | `lib\cn_search.py`：抖音号、B站昵称、豆瓣ID、博客园用户名 自动判定；其余平台给检索入口 |
 | 全部模式 | 上游 Sherlock，481 站点，代理自动探测 |
 | 源码 | 从 `codeload.github.com` 下载（本机无法直连 `github.com:443`） |
-| Python | 3.12.14，来自 `D:\Workspaces\SherlockOSINT\runtime\python`（独立运行时，不依赖 DSH） |
+| Python | 3.12.14，来自 `%USERPROFILE%\SherlockOSINT\runtime\python`（独立运行时，不依赖 DSH） |
 | 虚拟环境 | `sherlock\.venv`（由 runtime Python 创建，隔离，Sherlock 以可编辑模式装入） |
 | 启动入口 | 桌面 `Sherlock` 快捷方式、`sherlock-cn.cmd`（国内）、`sherlock.cmd`（全部）、`run-sherlock.ps1` |
 | 日志 | 每次运行写 `logs\<mode>-<时间戳>.log`（UTF-8） |
@@ -51,7 +51,7 @@ sherlock\
 项目不再放在 DSH 会话目录里（那个目录随时可能被清理），而是迁到了独立工作区：
 
 ```
-D:\Workspaces\SherlockOSINT\
+%USERPROFILE%\SherlockOSINT\
 ├─ sherlock\        ← 项目本体（本文件所在位置）
 ├─ runtime\python\  ← 独立 CPython 3.12.14（51 MB，项目专用）
 ├─ backups\         ← 快照：源码、脚本、配置、运行时（不含 .venv、日志、Cookie）
@@ -94,8 +94,8 @@ sherlock.cmd john --site GitLab --print-found
 结果文件：
 
 ```
-C:\Users\Administrator\Desktop\SherlockCN_<用户名>_<yyyyMMdd_HHmmss>.csv
-C:\Users\Administrator\Desktop\SherlockCN_<用户名>_<yyyyMMdd_HHmmss>.xlsx
+%USERPROFILE%\Desktop\SherlockCN_<用户名>_<yyyyMMdd_HHmmss>.csv
+%USERPROFILE%\Desktop\SherlockCN_<用户名>_<yyyyMMdd_HHmmss>.xlsx
 ```
 
 CSV 字段：`username,platform,identifier,status,status_cn,url,detail,method`；
@@ -250,7 +250,7 @@ sherlock.cmd john --csv --xlsx -fo output
 
 * 国内平台（抖音、B站、豆瓣、博客园、微博、小红书…）**直连可达**，但风控各有不同（见第 3 节）
 * 直连 `github.com`、`data.sherlockproject.xyz`、`raw.githubusercontent.com` 时通时断
-* 本机 `127.0.0.1:12450` 代理可访问被阻断站点（`github.com`、`x.com`、`instagram.com` 等）
+* 本机 `127.0.0.1:7890` 代理可访问被阻断站点（`github.com`、`x.com`、`instagram.com` 等）
 * 站点可达率抽样（24 个随机站点）：直连 16/24，走代理 23/24
 
 ---
@@ -305,7 +305,7 @@ Cookie 单独存在 `state\cookies.json`（键为 `weibo` / `zhihu` / `tieba`，
 `resources\data.json`（481 站点），与 `--local` 行为一致。`doctor.ps1` 会显示
 `sites.py sha256:...` 以确认补丁还在。
 
-> 运行时的独立性（2026-11-25 已完成）：`.venv` 由 `D:\Workspaces\SherlockOSINT\runtime\python\python.exe` 创建，
+> 运行时的独立性（2026-11-25 已完成）：`.venv` 由 `%USERPROFILE%\SherlockOSINT\runtime\python\python.exe` 创建，
 > `pyvenv.cfg` 的 `home` 指向该目录，**不再引用 DSH 或 C 盘**；`doctor.ps1` 的「Python 解释器」项显示
 > 解释器来源，只要不在 `C:\Users\...` 下即为独立运行。
 
@@ -314,7 +314,7 @@ Cookie 单独存在 `state\cookies.json`（键为 `weibo` / `zhihu` / `tieba`，
 ## 11. 更新到最新版
 
 ```powershell
-$ws = "D:\Workspaces\SherlockOSINT"
+$ws = "%USERPROFILE%\SherlockOSINT"
 $tmp = "$env:TEMP\sherlock-latest.tar.gz"
 Invoke-WebRequest "https://codeload.github.com/sherlock-project/sherlock/tar.gz/refs/heads/master" -OutFile $tmp
 
@@ -340,8 +340,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "$ws\sherlock\doctor.ps1"
 * **重装**：
 
 ```powershell
-$ws = "D:\Workspaces\SherlockOSINT\sherlock"
-$py = "D:\Workspaces\SherlockOSINT\runtime\python\python.exe"
+$ws = "%USERPROFILE%\SherlockOSINT\sherlock"
+$py = "%USERPROFILE%\SherlockOSINT\runtime\python\python.exe"
 & $py -m venv "$ws\.venv"
 $env:PIP_CACHE_DIR = "$ws\.pip-cache"; $env:TEMP = "$ws\.tmp"
 & "$ws\.venv\Scripts\python.exe" -m pip install -e "$ws"
@@ -372,7 +372,7 @@ $env:PIP_CACHE_DIR = "$ws\.pip-cache"; $env:TEMP = "$ws\.tmp"
 | Cookie 模式（默认关） | 关闭时微博/知乎/贴吧 输出「需手动」；`--cookie-mode` 无 Cookie 时输出「需Cookie」✅ |
 | Cookie 配置校验 | 伪造 Cookie：`--set-cookie` 拒绝保存；`--force` 保存后 `--check-cookies` 报 FAIL、查询报「登录态无效」✅ |
 | 迁移到 D 盘 | 139 MB / 7512 个文件复制后，重建 editable 安装；`doctor` 13 项、`selftest` 两种模式全部通过 ✅ |
-| 快捷方式重建 | 目标脚本、起始位置、图标均指向 `D:\Workspaces\SherlockOSINT\sherlock` ✅ |
+| 快捷方式重建 | 目标脚本、起始位置、图标均指向 `%USERPROFILE%\SherlockOSINT\sherlock` ✅ |
 | 独立运行时 | 复制 CPython 3.12.14 到 `runtime\python`（剔除 site-packages/test，51 MB），重建 venv 并重装全部依赖 ✅ |
 | 解耦校验 | `.venv` 内文本文件对 `C:\Users` / `dsh-runtimes` 的引用数为 0；全部 `.exe` shim 指向新 venv ✅ |
 | `doctor.ps1`（解耦后） | **13 项通过 · 0 警告 · 0 失败** ✅ |
@@ -387,10 +387,10 @@ $env:PIP_CACHE_DIR = "$ws\.pip-cache"; $env:TEMP = "$ws\.tmp"
 
 | 项目 | 内容 |
 | --- | --- |
-| 位置 | `C:\Users\Administrator\Desktop\Sherlock.lnk` |
+| 位置 | `%USERPROFILE%\Desktop\Sherlock.lnk` |
 | 目标 | `C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe` |
 | 参数 | `-NoProfile -ExecutionPolicy Bypass -File "...\sherlock\run-sherlock.ps1"` |
-| 起始位置 | `D:\Workspaces\SherlockOSINT\sherlock` |
+| 起始位置 | `%USERPROFILE%\SherlockOSINT\sherlock` |
 | 图标 | `...\sherlock\sherlock.ico` |
 
 说明：
@@ -426,7 +426,7 @@ $env:PIP_CACHE_DIR = "$ws\.pip-cache"; $env:TEMP = "$ws\.tmp"
 生成源码快照：
 
 ```powershell
-$root = "D:\Workspaces\SherlockOSINT"
+$root = "%USERPROFILE%\SherlockOSINT"
 $stamp = Get-Date -Format 'yyyyMMdd_HHmmss'
 $zip = "$root\backups\sherlock-$stamp.zip"
 $items = @('run-sherlock.ps1','doctor.ps1','selftest.ps1','sherlock.cmd','sherlock-cn.cmd',
@@ -440,7 +440,7 @@ Remove-Item $tmp -Recurse -Force
 "备份完成：$zip"
 ```
 
-恢复：解压到 `D:\Workspaces\SherlockOSINT\sherlock`，重建虚拟环境（第 12 节），
+恢复：解压到 `%USERPROFILE%\SherlockOSINT\sherlock`，重建虚拟环境（第 12 节），
 再跑 `sherlock-cn.cmd --selfcheck` 与 `doctor.ps1`。不含 `.venv` 是刻意的——虚拟环境跨机器/跨路径不可靠，重建更干净。
 
 ---

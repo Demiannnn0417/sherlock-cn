@@ -95,8 +95,9 @@ sherlock.cmd <用户名> --site GitLab --print-found   :: 全站模式
 
 ## 说明
 
-- 本项目是个人本地部署，`LOCAL-DEPLOY.md` / `IMPROVEMENTS.md` 里记录的是作者本机的路径与验证数据，
-  换机器时按文档替换路径即可。
+- 文档里的 `%USERPROFILE%` 指当前用户目录（PowerShell 中即 `$env:USERPROFILE`），
+  `127.0.0.1:7890` 是常见代理端口示例；请按本机实际路径/端口替换。
+- `LOCAL-DEPLOY.md` / `IMPROVEMENTS.md` 记录的是作者本机的部署与验证数据，可按需参考。
 - 国内平台接口会随平台改版失效，用 `sherlock-cn.cmd --selfcheck` 可快速确认通道是否还通。
 - 上游版权归 [sherlock-project](https://github.com/sherlock-project/sherlock)，本仓库同样以 MIT 协议发布。
 

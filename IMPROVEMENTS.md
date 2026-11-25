@@ -14,7 +14,7 @@
 
 | 顺序 | 改什么 | 一句话理由 |
 | --- | --- | --- |
-| 1 | **把本机代理自动接管** | 复测：同一批站点直连 16/24 可达，走 `127.0.0.1:12450` 后 23/24；`github.com`、`x.com`、`instagram.com`、`reddit.com`、`tiktok.com` 从超时变 200。这是"能不能查到"的分水岭 |
+| 1 | **把本机代理自动接管** | 复测：同一批站点直连 16/24 可达，走 `127.0.0.1:7890` 后 23/24；`github.com`、`x.com`、`instagram.com`、`reddit.com`、`tiktok.com` 从超时变 200。这是"能不能查到"的分水岭 |
 | 2 | **运行底座与 DSH 解耦、搬出会话工作区** | `.venv` 的解释器路径写死在 `~/.dsh/dsh-runtimes/...`；项目又放在会被重建的 workspace 里 |
 | 3 | **交互收成 1 步、结果变成报告** | 用户连问"输入用户名之后怎么搜索""如何保存结果""能否直接保存到桌面"——这不是用户不会用，是入口设计要求他先学会命令行 |
 
@@ -62,14 +62,14 @@
 
 ### 0.3 迁移与 Cookie 模式（2026-11-25 第四批）
 
-* **A2 已落地**：项目从 `C:\Users\Administrator\Documents\deepseek-harness\default-workspace\sherlock`
-  迁到 `D:\Workspaces\SherlockOSINT\sherlock`（139 MB / 7512 个文件），并做了三件收尾：
+* **A2 已落地**：项目从 `%USERPROFILE%\Documents\deepseek-harness\default-workspace\sherlock`
+  迁到 `%USERPROFILE%\SherlockOSINT\sherlock`（139 MB / 7512 个文件），并做了三件收尾：
   重建 editable 安装、重建 venv 里仍指向旧路径的 `.exe` shim、按新路径重建桌面快捷方式；文档里的绝对路径全部同步。
   `doctor.ps1` 新增「安装位置」检查——以后再放回 `C:\Users` 下会直接 WARN。
 * **Cookie 模式已落地（默认关闭）**：`cookieMode` 配置 + 设置菜单第 6 项 + `--cookie-mode`；
   支持微博 / 知乎 / 贴吧 三个平台的登录态页面判定，配置命令 `--set-cookie` / `--check-cookies` / `--clear-cookie`。
   只读公开主页 HTML，不碰 `X-S` / `a_bogus` 签名接口；小红书与微信仍不可自动判定（原因见 0.2）。
-* **A1 已落地**：复制 CPython 3.12.14 到 `D:\Workspaces\SherlockOSINT\runtime\python`（剔除 site-packages 与 test，51 MB），
+* **A1 已落地**：复制 CPython 3.12.14 到 `%USERPROFILE%\SherlockOSINT\runtime\python`（剔除 site-packages 与 test，51 MB），
   用它重建 `.venv` 并重装依赖；`.venv` 内对 `C:\Users` / `dsh-runtimes` 的引用为 0，`doctor` 从此 **13 项全绿、0 警告**。
 * **至此 A1/A2 都完成**：项目数据、虚拟环境、Python 运行时全部位于 D 盘工作区，DSH 升级、清理会话目录都不再影响它。
 
@@ -89,7 +89,7 @@
 | --- | --- |
 | 位置 | `...\default-workspace\sherlock`（139 MB，其中 `.venv` 137.6 MB） |
 | 版本 | Sherlock v0.16.2，master 源码包（`github.com` 不通，走 `codeload.github.com`） |
-| 解释器 | Python 3.12.14，来自 DSH 运行时；`.venv\pyvenv.cfg` 的 `home` 指向 `C:\Users\Administrator\.dsh\dsh-runtimes\dsh-primary-runtime\dependencies\python` |
+| 解释器 | Python 3.12.14，来自 DSH 运行时；`.venv\pyvenv.cfg` 的 `home` 指向 `%USERPROFILE%\.dsh\dsh-runtimes\dsh-primary-runtime\dependencies\python` |
 | 站点库 | 包内 `resources\data.json`，481 站点 |
 | 本地补丁 | `sites.py`：在线站点库拉取失败时回退到包内 `data.json` |
 | 入口 | 桌面 `Sherlock.lnk` → `run-sherlock.ps1`（交互，3 问，结果自动存桌面）；`sherlock.cmd`（命令行透传） |
@@ -99,7 +99,7 @@
 
 | 发现 | 数据 | 对改进的含义 |
 | --- | --- | --- |
-| 本机代理现在活着 | `127.0.0.1:12450` 在监听；系统代理 `ProxyEnable=0`，注册表里 `ProxyServer=http://127.0.0.1:12450` | 探测代理不能只看 `ProxyEnable`，要看端口是否真的能出网 |
+| 本机代理现在活着 | `127.0.0.1:7890` 在监听；系统代理 `ProxyEnable=0`，注册表里 `ProxyServer=http://127.0.0.1:7890` | 探测代理不能只看 `ProxyEnable`，要看端口是否真的能出网 |
 | 走该代理，被墙站点全部能开 | `github.com`、`x.com`、`instagram.com`、`reddit.com`、`tiktok.com`、`data.sherlockproject.xyz`、`raw.githubusercontent.com` 全部 HTTP 200 | 现在这套部署等于"有钥匙但没插进锁里" |
 | `--proxy` 覆盖不到启动阶段 | 加 `--proxy` 仍打印 `Could not load the online site list`；改成设 `HTTPS_PROXY` 环境变量后两条 warning 消失（在线站点库 + 排除列表都加载成功） | Sherlock 只把 `--proxy` 用在站点查询上，站点库/排除列表/更新检查走裸 `requests` |
 | 站点可达率（抽样 24 个站点，HEAD 6s） | 直连 16/24，走代理 23/24（唯一失败是对方 SSL 握手） | 可达性抽样的意义：默认全站扫描里 1/3 是纯浪费 |
@@ -168,7 +168,7 @@
 
 #### B1 代理自动接管（P0，S）★ 最高性价比
 
-**证据**（复测）：`127.0.0.1:12450` 在监听；直连 `data.sherlockproject.xyz` / `raw.githubusercontent.com` 被 reset，走该代理 200；`github.com`、`x.com`、`instagram.com`、`reddit.com`、`tiktok.com` 走代理全部 200；`--proxy` 不影响启动阶段的站点库/排除列表加载，只有 `HTTPS_PROXY`/`HTTP_PROXY` 能覆盖。
+**证据**（复测）：`127.0.0.1:7890` 在监听；直连 `data.sherlockproject.xyz` / `raw.githubusercontent.com` 被 reset，走该代理 200；`github.com`、`x.com`、`instagram.com`、`reddit.com`、`tiktok.com` 走代理全部 200；`--proxy` 不影响启动阶段的站点库/排除列表加载，只有 `HTTPS_PROXY`/`HTTP_PROXY` 能覆盖。
 **做法**：
 
 ```powershell
@@ -176,7 +176,7 @@ function Get-UsableProxy {
     $cands = @()
     $k = Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings' -ErrorAction SilentlyContinue
     if ($k.ProxyServer) { $cands += ($k.ProxyServer -split ';' | ForEach-Object { ($_ -split '=')[-1] }) }
-    $cands += '127.0.0.1:12450','127.0.0.1:7890','127.0.0.1:7897','127.0.0.1:10809','127.0.0.1:1080'
+    $cands += '127.0.0.1:7890','127.0.0.1:7890','127.0.0.1:7897','127.0.0.1:10809','127.0.0.1:1080'
     foreach ($c in ($cands | Where-Object { $_ } | Select-Object -Unique)) {
         try {
             $r = Invoke-WebRequest -Uri 'https://data.sherlockproject.xyz' -Proxy "http://$c" -TimeoutSec 5 -UseBasicParsing
@@ -320,15 +320,15 @@ function Get-UsableProxy {
 
 ```powershell
 # 1) 本机代理与系统设置
-Get-NetTCPConnection -LocalPort 12450 -State Listen          # 127.0.0.1:12450 LISTEN
+Get-NetTCPConnection -LocalPort 12450 -State Listen          # 127.0.0.1:7890 LISTEN
 (Get-ItemProperty 'HKCU:\...\Internet Settings').ProxyEnable  # 0（但 12450 可用）
 
 # 2) 走代理取被墙域名（requests）
-requests.get('https://github.com/', proxies={'https':'http://127.0.0.1:12450'})   # 200
+requests.get('https://github.com/', proxies={'https':'http://127.0.0.1:7890'})   # 200
 requests.get('https://data.sherlockproject.xyz', proxies=...)                      # 200（直连 10054 reset）
 
 # 3) --proxy 覆盖不到启动阶段；改用环境变量后 warning 消失
-$env:HTTPS_PROXY='http://127.0.0.1:12450'
+$env:HTTPS_PROXY='http://127.0.0.1:7890'
 python -m sherlock_project test --site GitLab --print-all   # 无 Could not load the online site list
 
 # 4) 站点可达率抽样（24 个随机站点，HEAD 6s）
