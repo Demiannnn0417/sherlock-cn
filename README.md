@@ -7,6 +7,10 @@
 > ⚠️ 仅用于授权范围内的公开信息自查、品牌保护与公开研究。
 > 请遵守各平台用户协议与当地法律法规，不要用于人肉搜索、跟踪、骚扰或大规模自动化查询。
 
+![国内模式终端输出示例](docs/images/cn-mode-demo.png)
+
+> 截图来自真实运行结果（`sherlock-cn.cmd douyin`），仅做了终端渲染。
+
 ## 特性
 
 - **国内模式（默认）**：抖音号、B站昵称、豆瓣ID、博客园用户名 自动判定；
@@ -72,6 +76,18 @@ sherlock-cn.cmd <用户名> --cookie-mode
 
 sherlock.cmd <用户名> --site GitLab --print-found   :: 全站模式
 ```
+
+## 体检与自检
+
+每次改完环境先跑一遍，`doctor.ps1` 看 13 项是否全绿，`selftest.ps1` 真查一次 GitLab / 抖音：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\doctor.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\selftest.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\selftest.ps1 -Mode all
+```
+
+![doctor 体检](docs/images/doctor.png)
 
 ## 目录
 

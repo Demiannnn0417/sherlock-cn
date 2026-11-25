@@ -352,34 +352,41 @@ $env:PIP_CACHE_DIR = "$ws\.pip-cache"; $env:TEMP = "$ws\.tmp"
 
 ---
 
-## 13. 验证记录
+## 13. 验证记录（模板）
 
-**2026-11-25 第三批（国内模式）**
+部署、迁移或升级后，跑下面两组检查并把结果填进「本次结果」列。`doctor.ps1` / `selftest.ps1`
+会自动给出大部分结论，不需要手工逐站点试。
 
-| 检查项 | 结果 |
-| --- | --- |
-| 抖音通道 | `douyin` → 抖音小助手（粉丝 4906 万）✅ |
-| B站通道 | `碧诗` → mid=2，认证「bilibili创始人（站长）」✅ |
-| 豆瓣通道 | `ahbei` → 阿北（200）；随机串 → 404 ✅ |
-| 博客园通道 | `zhangyong` → 200；随机串 → 404 ✅ |
-| `cn_search.py --selfcheck` | 4/4 通道可用 ✅ |
-| 双用户检索（douyin / ahbei） | 自动判定 8 项：命中 5、候选 1、未注册 2 ✅ |
-| 结果文件 | `SherlockCN_<用户名>_<时间戳>.csv/.xlsx` 落桌面，XLSX 含「检索结果 + 说明」两张表 ✅ |
-| 模式切换 | 设置菜单 `0` 国内↔全部，写回 `config.json` ✅ |
-| 全部模式回归 | `-Mode all` 下 GitLab 命中，代理自动生效 ✅ |
-| `selftest.ps1` | 国内 7/7 通过；`-Mode all` 5/5 通过 ✅ |
-| `doctor.ps1` | 11 通过 · 1 警告（DSH 运行时耦合）· 0 失败，含「国内通道 4/4」✅ |
-| Cookie 模式（默认关） | 关闭时微博/知乎/贴吧 输出「需手动」；`--cookie-mode` 无 Cookie 时输出「需Cookie」✅ |
-| Cookie 配置校验 | 伪造 Cookie：`--set-cookie` 拒绝保存；`--force` 保存后 `--check-cookies` 报 FAIL、查询报「登录态无效」✅ |
-| 迁移到 D 盘 | 139 MB / 7512 个文件复制后，重建 editable 安装；`doctor` 13 项、`selftest` 两种模式全部通过 ✅ |
-| 快捷方式重建 | 目标脚本、起始位置、图标均指向 `%USERPROFILE%\SherlockOSINT\sherlock` ✅ |
-| 独立运行时 | 复制 CPython 3.12.14 到 `runtime\python`（剔除 site-packages/test，51 MB），重建 venv 并重装全部依赖 ✅ |
-| 解耦校验 | `.venv` 内文本文件对 `C:\Users` / `dsh-runtimes` 的引用数为 0；全部 `.exe` shim 指向新 venv ✅ |
-| `doctor.ps1`（解耦后） | **13 项通过 · 0 警告 · 0 失败** ✅ |
-| `selftest.ps1`（解耦后） | 国内 7/7、全部 5/5；快捷方式同款流程与两个 `.cmd` 入口均正常 ✅ |
+### 13.1 基础检查
 
-**2026-11-25 第二批（代理/日志/自检）**：代理 strong、日志落盘、`-Json` 输出、快捷方式校验均通过。
-**2026-11-25 第一批（部署）**：安装、CSV/XLSX 导出、桌面快捷方式创建与校验通过。
+| 检查项 | 方法 | 期望 | 本次结果 |
+| --- | --- | --- | --- |
+| 项目文件 | `doctor.ps1` 第 1 项 | `pyproject.toml` / `sherlock.py` / `data.json` 齐全 | ☐ |
+| 安装位置 | `doctor.ps1` 第 2 项 | 不在 `C:\Users` 下（避免会话目录被清理） | ☐ |
+| Python 解释器 | `doctor.ps1` 第 3 项 | 版本 ≥ 3.9，且来源不在 `C:\Users` | ☐ |
+| Sherlock 包 | `doctor.ps1` 第 4 项 | 可 import，版本与 `pyproject.toml` 一致 | ☐ |
+| 本地补丁 | `doctor.ps1` 第 5 项 | 显示 `sites.py sha256:...` | ☐ |
+| 站点库 | `doctor.ps1` 第 6 项 | ≥ 450 个站点 | ☐ |
+| 代理（全站模式） | `doctor.ps1` 第 7 项 | 有可用代理或明确直连 | ☐ |
+| 国内通道 | `doctor.ps1` 第 8 项 | `sherlock-cn.cmd --selfcheck` 返回 4/4 | ☐ |
+| 桌面可写 | `doctor.ps1` 第 9 项 | 能创建/删除临时文件 | ☐ |
+| 快捷方式 | `doctor.ps1` 第 10 项 | 指向当前 `run-sherlock.ps1` | ☐ |
+| 日志目录 | `doctor.ps1` 第 11 项 | 可写 | ☐ |
+
+### 13.2 功能抽查
+
+| 场景 | 命令 | 期望 | 本次结果 |
+| --- | --- | --- | --- |
+| 国内模式自检 | `selftest.ps1` | 4 个通道 + 真实检索全部通过 | ☐ |
+| 全站模式自检 | `selftest.ps1 -Mode all` | GitLab 命中，CSV/XLSX 正常 | ☐ |
+| 桌面入口 | 双击 `Sherlock` 快捷方式 → 输入用户名 | 出结果并保存 CSV/XLSX 到桌面 | ☐ |
+| 国内模式（自动） | `sherlock-cn.cmd <抖音号>` | 抖音命中，豆瓣/博客园按 ID 判定 | ☐ |
+| 国内模式（手动入口） | 同上，看 `unsupported` 行 | 微博/小红书/微信等给出可点链接 | ☐ |
+| Cookie 模式（可选） | `--set-cookie weibo` → `--check-cookies` | 有效时显示"通过"，失效时给出提示 | ☐ |
+| 全部模式 | `sherlock.cmd <用户名> --site GitLab` | 命中或明确 `Timeout`，不崩溃 | ☐ |
+
+> 说明：`selftest.ps1` 在网络原因查不到时给 `WARN` 而不是 `FAIL`，以它的汇总结果为准；
+> 任何 `FAIL` 都应对照 `logs\` 里的日志先定位，再重跑。
 
 ---
 
